@@ -1,10 +1,11 @@
 import streamlit as st
 import joblib
+import scipy
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 
 # Load all necesssary files
-tfidf_matrix = joblib.load('tfidfmatrix.pkl')
+tfidf_matrix = scipy.sparse.load_npz('tfidf_matrix.npz')
 indices = joblib.load('indices.pkl') 
 df = joblib.load('netflix_title.pkl')
 
