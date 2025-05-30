@@ -4,15 +4,23 @@ import scipy
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 
-# Load all necesssary files
-tfidf_matrix = scipy.sparse.load_npz('tfidf_matrix.npz')
-indices = joblib.load('indices.pkl') 
-df = joblib.load('netflix_title.pkl')
+@st.cache_resource
+def load_cosine_sim():
+    tfidf = scipy.sparse.load_npz('tfidf_matrix.npz')
+    return cosine_similarity(tfidf, tfidf)
 
-#Calculate the cosine similarity
-cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
+@st.cache_resource
+def load_indices():
+    return joblib.load('indices.pkl')
 
-# Function to get the recommendations
+@st.cache_data
+def load_df():
+    return joblib.load('netflix_title.pkl')
+
+cosine_sim = load_cosine_sim()
+indices = load_indices()
+df = load_df()
+
 def get_recommendations(title, df, indices, cosine_sim, num_recommend = 5):
     title = title.lower()
     idx = indices.get(title)
@@ -32,19 +40,19 @@ def main():
     st.title('Project Model Deployment - Recommendation System')
     st.text('Caroline Ang - 2702208606 \n Evelyn Caristy Untariady - 2702209496 \n Laurel Evelina Widjaja - 2702213770')
 
-    # Input dari user
     st.write('Masukkan judul film atau acara TV Netflix yang kamu suka:')
     input_title = st.text_input("Contoh: The Irishman")
 
-    # Button
     if st.button('Get Recommendations'):
-        recommendations = get_recommendations(input_title, df, indices, cosine_sim)
-            
-        if recommendations is None:
-            st.error(f"Film '{input_title}' tidak ditemukan dalam database.")
+        if input_title.strip() == "":
+            st.warning("Masukkan judul terlebih dahulu!")
         else:
-            st.success('Here are some recommendations for you!')
-            st.dataframe(recommendations)
+            recommendations = get_recommendations(input_title, df, indices, cosine_sim)
+            if recommendations is None:
+                st.error(f"Film '{input_title}' tidak ditemukan dalam database.")
+            else:
+                st.success('Here are some recommendations for you!')
+                st.dataframe(recommendations)
 
 if __name__ == '__main__':
     main()
