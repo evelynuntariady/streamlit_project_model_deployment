@@ -20,7 +20,7 @@ def get_recommendations(title, df, indices, cosine_sim, num_recommend = 5):
         return None
 
     sim_scores = list(enumerate(cosine_sim[idx]))
-    sim_scores = sorted(sim_scores, key=lambda df: df[1], reverse=True)
+    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
     top_similar = sim_scores[1:num_recommend+1]
 
     movie_indices = [i[0] for i in top_similar]
